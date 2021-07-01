@@ -107,6 +107,8 @@ jobs:
         with:
           commit_user_name: Release Bot
           commit_user_email: bot@sshort.link
+          commit_options: '--amend --no-edit'
+          push_options: '--force'
 
       # Push tag to GitHub if package.json version's tag is not tagged
       - name: package-version
