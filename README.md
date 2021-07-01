@@ -1,7 +1,7 @@
 Node SShort Link Client
 =======================
 
-[![client-node](https://github.com/sshort-link/client-node/actions/workflows/main.yaml/badge.svg?branch=develop)](https://github.com/sshort-link/client-node/actions/workflows/main.yaml)
+[![client-node](https://github.com/sshort-link/client-node/actions/workflows/main.yaml/badge.svg)](https://github.com/sshort-link/client-node/actions/workflows/main.yaml)
 
 The Javascript clients for SShort Link is implemented in typescript.
 

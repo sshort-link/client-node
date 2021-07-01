@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'either of patch, minor, major.'
+        description: 'target version, either of {patch,minor,major}.'
         required: true
         default: 'patch'
     branches: [ main ]
