@@ -62,19 +62,21 @@ jobs:
         run: npm run build
       - name: bump version
         run: |
-          case ${{ github.event.inputs.version }} in
-          "patch")
-            npm version patch
-            ;;
-          "minor")
-            npm version minor
-            ;;
-          "major")
-            npm version major
-            ;;
-          *)
-            exit 1
-            ;;
+          VERSION=${{ github.event.inputs.version }}
+          VERSION=${VERSION:-patch}
+          case "${VERSION}" in
+            "patch" )
+              npm version patch
+              ;;
+            "minor" )
+              npm version minor
+              ;;
+            "major" )
+              npm version major
+              ;;
+            * )
+              exit 1
+              ;;
           esac
       - name: publish
         run: |
