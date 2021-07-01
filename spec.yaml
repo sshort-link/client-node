@@ -1,0 +1,534 @@
+openapi: 3.0.0
+info:
+  title: URL Shorterner
+  version: 0.1.0
+servers:
+  - url: http://localhost:5001
+paths:
+  /health:
+    get:
+      operationId: healthcheck
+      summary: Health Check
+      responses:
+        200:
+          description: returns the health of this service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+
+  /{link_id}:
+    get:
+      operationId: resolveLink
+      summary: Resolve a Link
+      description: Resolve the given short url to the original url
+      parameters:
+        - name: link_id
+          in: path
+          description: link_id
+          required: true
+          schema:
+            type: string
+      responses:
+        302:
+          description: redirect request to the original url
+          headers:
+            Location:
+              schema:
+                type: string
+              description: the original url
+
+  /shorten:
+    post:
+      operationId: links
+      summary: Shorten a Link
+      description: Converts a long url to a short url
+      security:
+        - none: []
+        - bearerAuth: []
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/PostShortenPayload'
+      responses:
+        200:
+          description: the shorten url being returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShortenResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /accounts:
+    post:
+      operationId: createAccount
+      summary: Create an account
+      description: Creates a new account
+      tags:
+        - Account
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/CreateAccountPayload'
+      responses:
+        200:
+          description: the account being returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+
+  /accounts/{account_id}:
+    get:
+      operationId: getAccount
+      summary: Get an account
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          description: account_id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: the account being returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /accounts/{account_id}/links:
+    get:
+      operationId: getAccountLinks
+      summary: Get links of an account
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          description: account_id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: the account being returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLinksResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /accounts/{account_id}/invitations:
+    post:
+      operationId: inviteAccountUser
+      summary: Invite a user to an account
+      description: Invite a new user to account
+      tags:
+        - AccountUser
+      parameters:
+        - name: account_id
+          in: path
+          description: account_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/CreateUserInvitationPayload'
+      responses:
+        201:
+          description: the message being returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserInvitationResponse'
+
+  /accounts/{account_id}/users:
+    post:
+      operationId: createAccountUser
+      summary: Create a user to an account
+      description: Create a new user to account
+      tags:
+        - AccountUser
+      parameters:
+        - name: account_id
+          in: path
+          description: account_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/CreateAccountUserPayload'
+      responses:
+        201:
+          description: the created user being returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountUserResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /accounts/{account_id}/users/login:
+    post:
+      operationId: loginAccountUser
+      summary: Login to an account
+      description: Login to account
+      tags:
+        - AccountUser
+      parameters:
+        - name: account_id
+          in: path
+          description: account_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/LoginAccountUserPayload'
+      responses:
+        200:
+          description: the token being returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountUserLoginResponse'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+  /accounts/{account_id}/tokens:
+    post:
+      operationId: createAccountToken
+      summary: Create an account token
+      description: Creates a new account token
+      tags:
+        - AccountToken
+      parameters:
+        - name: account_id
+          in: path
+          description: account_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/PostAccountTokenPayload'
+      responses:
+        200:
+          description: the account being returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTokenResponse'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  responses:
+    BadRequestError:
+      description: bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnauthorizedError:
+      description: unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFoundError:
+      description: not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    HealthCheckResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: ok
+
+    PostShortenPayload:
+      type: object
+      required:
+        - long_url
+      properties:
+        long_url:
+          type: string
+          description: an url that needs to be shorten
+          example: https://example.com/long/long/url
+        domain:
+          type: string
+          description: custom domain used in the shorten url
+          example: example.com
+        path:
+          type: string
+          description: path of the short url
+          example: sample
+        ttl:
+          type: number
+          description: |
+            time to live, unixtime in second.
+            1 year by default, maximum is 5 years.
+          default: 31536000
+          minimum: 1
+          maximum: 157680000
+          example: 31536000
+
+    ShortenResponse:
+      type: object
+      required:
+        - id
+        - link
+        - domain
+        - long_url
+        - expires_at
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          example: wdqt8meq
+        link:
+          type: string
+          description: a shorten url
+          example: http://sshort.link/wdqt8meq
+        domain:
+          type: string
+          description: custom domain used in the shorten url
+          example: sshort.link
+        long_url:
+          type: string
+          description: the original long url
+          example: https://example.com/long/long/url
+        expires_at:
+          type: string
+          format: date-time
+          description: datetime when link expires
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateAccountPayload:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - password_confirmation
+      properties:
+        name:
+          type: string
+          example: example
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+        password_confirmation:
+          type: string
+        description:
+          type: string
+
+    AccountResponse:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - tokens
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountTokenResponse'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AccountLinksResponse:
+      type: object
+      required:
+        - entries
+        # - limit
+        # - offset
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShortenResponse'
+        # limit:
+        #   type: integer
+        #   minimum: 10
+        # offset:
+        #   type: integer
+        #   minimum: 0
+
+    CreateUserInvitationPayload:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+
+    CreateUserInvitationResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: ok
+
+    CreateAccountUserPayload:
+      type: object
+      required:
+        - invitation_token
+        - password
+        - password_confirmation
+      properties:
+        invitation_token:
+          type: string
+        password:
+          type: string
+        password_confirmation:
+          type: string
+
+    AccountUserResponse:
+      type: object
+      required:
+        - email
+        - account_id
+        - created_at
+        - updated_at
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        account_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LoginAccountUserPayload:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AccountUserLoginResponse:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+
+    PostAccountTokenPayload:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+
+    AccountTokenResponse:
+      type: object
+      required:
+        - id
+        - name
+        - token
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        token:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

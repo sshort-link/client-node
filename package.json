@@ -1,22 +1,20 @@
 {
-  "name": "ts-project-template",
-  "version": "1.0.0",
+  "name": "@sshort-link/client-node",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "generate": "openapi --input spec.yaml --output ./src/types --useOptions --exportServices false --exportCore false --useUnionTypes",
     "lint": "prettier --check './{src,test,examples}/**/*.{js,ts}'",
     "lint:fix": "prettier --write './{src,test,examples}/**/*.{js,ts}'",
     "build": "tsc",
     "test": "jest",
     "prepare": "husky install"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ysku/ts-project-template.git"
-  },
   "license": "MIT",
   "devDependencies": {
     "@jest/types": "^27.0.2",
+    "@types/axios": "^0.14.0",
     "@types/jest": "^26.0.23",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
     "@typescript-eslint/parser": "^4.28.0",
@@ -24,6 +22,7 @@
     "husky": "^6.0.0",
     "jest": "^27.0.5",
     "lint-staged": "^11.0.0",
+    "openapi-typescript-codegen": "^0.9.3",
     "prettier": "^2.3.2",
     "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
@@ -34,5 +33,12 @@
       "npm run lint:fix",
       "git add"
     ]
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "dependencies": {
+    "axios": "^0.21.1"
   }
 }
