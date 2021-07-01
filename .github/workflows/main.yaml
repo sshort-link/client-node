@@ -72,8 +72,16 @@ jobs:
           git config --global user.name Release Bot
           git config --global user.email bot@sshort.link
 
+      - name: install
+        run: npm install
+
+      - name: build
+        run: npm run build
+
       - name: bump version
         run: |
+          git reset --hard
+
           VERSION=${{ github.event.inputs.version }}
           VERSION=${VERSION:-patch}
           case "${VERSION}" in
@@ -91,24 +99,14 @@ jobs:
               ;;
           esac
 
-      - name: install
-        run: npm install
-
-      - name: build
-        run: npm run build
-
       - name: publish
         run: |
           npx can-npm-publish --verbose && npm publish || echo "Does not publish"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_user_name: Release Bot
-          commit_user_email: bot@sshort.link
-          commit_options: '--amend --no-edit'
-          push_options: '--force'
+      - name: push changes
+        run: git push origin main
 
       # Push tag to GitHub if package.json version's tag is not tagged
       - name: package-version
