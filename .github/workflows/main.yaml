@@ -2,7 +2,10 @@ name: client-node
 env:
   CI: true
 
-on: push
+on:
+  push:
+    paths:
+      - '**.ts'
 
 jobs:
   test:
